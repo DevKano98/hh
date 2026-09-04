@@ -13,21 +13,50 @@ class SearchProvider:
 class LiveMultiSourceProvider(SearchProvider):
     def search(self, query: str = "human face portrait") -> list[SearchResult]:
         results = []
-        # Clean query
+        
+        # 1. Intelligent Core Subject Extraction
         cleaned = re.sub(r'\b(public|news|speech|photo|conference|live|official|archive)\b', '', query, flags=re.IGNORECASE)
         cleaned = re.sub(r'[^a-zA-Z0-9\s]', ' ', cleaned).strip()
         
-        # If query is only digits or too short, fallback to a sensible default query
-        if not cleaned or cleaned.isdigit() or len(cleaned) < 3:
-            search_term = "Samantha Ruth Prabhu Disha Patani"
-        else:
-            search_term = cleaned
+        words = cleaned.split()
+        stop_words = {'in', 'at', 'on', 'with', 'and', 'for', 'the', 'of', 'a', 'an', 'to', 'is', 'by', 'from', 'but', 'her', 'his', 'best', 'outfits', 'makeup', 'lips', 'beauty', 'look', 'shares', 'clicks'}
+        core_words = []
+        for w in words:
+            if w.lower() in stop_words and len(core_words) >= 2:
+                break
+            core_words.append(w)
+            
+        core_subject = ' '.join(core_words) if core_words else (' '.join(words[:2]) if len(words) >= 2 else cleaned)
+        if not core_subject or core_subject.isdigit() or len(core_subject) < 3:
+            core_subject = "Disha Patani"
 
-        # 1. Query Wikimedia Commons directly for high-resolution images
+        image_pool = []
+
+        # 2. Query Openverse Creative Commons Image API for high-resolution authentic photography
         try:
-            commons_url = f"https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch={urllib.parse.quote(search_term)}&gsrnamespace=6&prop=imageinfo&iiprop=url|size|extmetadata&iiurlwidth=800&format=json"
+            ov_url = f"https://api.openverse.org/v1/images/?q={urllib.parse.quote(core_subject)}&page_size=10"
+            req = urllib.request.Request(ov_url, headers={'User-Agent': 'TraceLens/2.0 (research@tracelens.local)'})
+            ov_data = json.loads(urllib.request.urlopen(req, timeout=5).read().decode('utf-8'))
+            for r in ov_data.get('results', []):
+                img_url = r.get('url') or r.get('thumbnail')
+                thumb = r.get('thumbnail') or img_url
+                if img_url:
+                    image_pool.append({
+                        "url": img_url,
+                        "title": r.get('title', f"{core_subject} Archival Capture"),
+                        "source": "Openverse / Wikimedia Public Archive",
+                        "media_type": "image",
+                        "thumbnail_url": thumb,
+                        "article_text": f"Public open-access photographic record for {core_subject}."
+                    })
+        except Exception as e:
+            logging.error(f"Openverse scrape error: {e}")
+
+        # 3. Query Wikimedia Commons API for authentic portraits
+        try:
+            commons_url = f"https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch={urllib.parse.quote(core_subject)}&gsrnamespace=6&prop=imageinfo&iiprop=url|size|extmetadata&iiurlwidth=800&format=json"
             req = urllib.request.Request(commons_url, headers={'User-Agent': 'TraceLens/2.0 (research@tracelens.local)'})
-            res = json.loads(urllib.request.urlopen(req, timeout=6).read().decode('utf-8'))
+            res = json.loads(urllib.request.urlopen(req, timeout=5).read().decode('utf-8'))
             pages = res.get('query', {}).get('pages', {})
             
             for pid, page in pages.items():
@@ -37,7 +66,7 @@ class LiveMultiSourceProvider(SearchProvider):
                 full_url = img_info.get('url') or thumb_url
                 if not thumb_url:
                     continue
-                results.append({
+                image_pool.append({
                     "url": full_url,
                     "title": f"{title} — Public Archival Photo",
                     "source": "Wikimedia Commons / Global Index",
@@ -48,11 +77,11 @@ class LiveMultiSourceProvider(SearchProvider):
         except Exception as e:
             logging.error(f"Wikimedia Commons scrape error: {e}")
 
-        # 2. Query Wikipedia API for biographical page portraits & extracts
+        # 4. Query Wikipedia API for biographical page portraits & extracts
         try:
-            wiki_url = f"https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch={urllib.parse.quote(search_term)}&gsrlimit=6&prop=pageimages|extracts&piprop=original|thumbnail&pithumbsize=600&exintro=1&explaintext=1&exsentences=3&format=json"
+            wiki_url = f"https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch={urllib.parse.quote(core_subject)}&gsrlimit=4&prop=pageimages|extracts&piprop=original|thumbnail&pithumbsize=600&exintro=1&explaintext=1&exsentences=3&format=json"
             req = urllib.request.Request(wiki_url, headers={'User-Agent': 'TraceLens/2.0 (research@tracelens.local)'})
-            res = json.loads(urllib.request.urlopen(req, timeout=6).read().decode('utf-8'))
+            res = json.loads(urllib.request.urlopen(req, timeout=5).read().decode('utf-8'))
             pages = res.get('query', {}).get('pages', {})
             
             for pid, page in pages.items():
@@ -61,7 +90,7 @@ class LiveMultiSourceProvider(SearchProvider):
                 extract = page.get('extract', f"Public archival record for {title}.")
                 if not img_url:
                     continue
-                results.append({
+                image_pool.append({
                     "url": img_url,
                     "title": f"{title} — Official Biographical Record",
                     "source": "Wikipedia Public Archive",
@@ -72,24 +101,30 @@ class LiveMultiSourceProvider(SearchProvider):
         except Exception as e:
             logging.error(f"Wikipedia scrape error: {e}")
 
-        # 3. Query Google News RSS for live journalistic news coverage
+        # Add image pool items to results first
+        results.extend(image_pool[:4])
+
+        # 5. Query Google News RSS for live journalistic news coverage
         try:
-            rss_url = f"https://news.google.com/rss/search?q={urllib.parse.quote(search_term)}&hl=en-US&gl=US&ceid=US:en"
+            rss_url = f"https://news.google.com/rss/search?q={urllib.parse.quote(query)}&hl=en-US&gl=US&ceid=US:en"
             req = urllib.request.Request(rss_url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
-            xml_data = urllib.request.urlopen(req, timeout=6).read()
+            xml_data = urllib.request.urlopen(req, timeout=5).read()
             root = ET.fromstring(xml_data)
             items = root.findall('.//item')
             
-            for item in items[:5]:
-                title = item.find('title').text if item.find('title') is not None else f"{search_term} Press Wire"
+            for idx, item in enumerate(items[:6]):
+                title = item.find('title').text if item.find('title') is not None else f"{query} Press Wire"
                 link = item.find('link').text if item.find('link') is not None else ""
                 pub = item.find('pubDate').text if item.find('pubDate') is not None else ""
                 desc = item.find('description').text if item.find('description') is not None else ""
                 clean_desc = re.sub('<[^<]+?>', '', desc) if desc else f"Recent public press report: {title}"
                 
-                thumb = results[0]["thumbnail_url"] if results else "/assets/broadcast_summit.jpg"
+                # Pair with an authentic scraped photo of the person
+                thumb = image_pool[idx % len(image_pool)]["thumbnail_url"] if image_pool else "/assets/portrait_elena.jpg"
+                full_photo = image_pool[idx % len(image_pool)]["url"] if image_pool else "/assets/portrait_elena.jpg"
+                
                 results.append({
-                    "url": link or thumb,
+                    "url": link or full_photo,
                     "title": title,
                     "source": "Google News Live Wire",
                     "media_type": "news",
@@ -99,9 +134,9 @@ class LiveMultiSourceProvider(SearchProvider):
         except Exception as e:
             logging.error(f"News RSS scrape notice: {e}")
 
-        # 4. Fallback if offline
+        # 6. Fallback if offline
         if not results:
-            return DemoProvider().search(search_term)
+            return DemoProvider().search(core_subject)
 
         # Convert to SearchResult objects
         normalized = []
