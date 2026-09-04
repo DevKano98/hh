@@ -1,76 +1,39 @@
 import React from 'react';
-import { ArrowRight, ShieldCheck, Lock, Sparkles, Terminal, Activity, Database } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Lock, Sparkles } from 'lucide-react';
 
-export default function HeroSection({ onStartDiscovery }) {
+export default function HeroSection() {
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-10">
-      <div className="max-w-3xl">
-        
-        {/* Release / Status Pill */}
-        <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-mono text-zinc-700 mb-6">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span className="font-semibold text-zinc-900">TraceLens Enterprise</span>
-          <span className="text-zinc-400">•</span>
-          <span>EVM Provenance & AI Forensics</span>
+    <section className="max-w-7xl mx-auto px-6 pt-16 pb-12">
+      <div className="max-w-4xl">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-pill bg-pale-green text-deep-green text-xs font-mono mb-6 border border-emerald-200">
+          <span className="w-2 h-2 rounded-full bg-deep-green animate-pulse"></span>
+          <span>AUTONOMOUS MEDIA PROVENANCE ARCHITECTURE</span>
         </div>
 
-        {/* Headline */}
-        <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-zinc-950 leading-[1.1] mb-5">
-          Biometric media provenance, verified on-chain.
+        <h1 className="hero-headline text-5xl sm:text-7xl lg:text-[84px] font-normal text-cohere-black mb-8">
+          Visual media discovery & immutable blockchain provenance.
         </h1>
 
-        {/* Subtitle */}
-        <p className="text-base sm:text-lg text-zinc-600 leading-relaxed mb-8">
-          Ingest authorized portrait references, scrape live open-source web archives, verify 512-dimensional facial landmarks, and anchor immutable SHA-256 evidence packages directly to an EVM smart contract.
+        <p className="text-lg sm:text-xl text-slate max-w-2xl leading-relaxed mb-10">
+          Ingest authorized reference portrait streams, compute transient 512-dimensional ArcFace embeddings, discover candidate captures across public web indexes, and anchor deterministic SHA-256 evidence packages to the EVM blockchain.
         </p>
 
-        {/* CTA Strip */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-4">
           <a
             href="#ingestion-section"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-zinc-950 text-white text-xs font-medium hover:bg-zinc-800 active:bg-zinc-900 transition-all shadow-xs"
+            className="bg-primary text-white px-8 py-4 rounded-pill text-sm font-medium hover:bg-cohere-black transition-all flex items-center gap-2 shadow-md hover:shadow-lg active:scale-98"
           >
-            <span>Launch Ingestion Console</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <span>Begin Forensic Pipeline</span>
+            <ArrowRight className="w-4 h-4" />
           </a>
-
-          <a
-            href="#discovery-section"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-zinc-200 bg-white text-zinc-700 text-xs font-medium hover:bg-zinc-50 hover:text-zinc-900 transition-all shadow-xs"
-          >
-            <span>Explore Discovery Stream</span>
-          </a>
-
           <a
             href="#tamper-section"
-            className="text-xs font-medium text-zinc-500 hover:text-zinc-900 transition-colors px-2 py-1 flex items-center gap-1"
+            className="text-ink text-sm font-medium underline underline-offset-4 hover:text-action-blue transition-colors px-4 py-2"
           >
-            <span>Simulate Tamper Detection →</span>
+            Test Cryptographic Tampering →
           </a>
         </div>
-
-        {/* High-Level Feature Badges */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-10 pt-6 border-t border-zinc-200/80">
-          <div className="flex items-center gap-2 text-xs font-medium text-zinc-700">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>512-D ArcFace Biometrics</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs font-medium text-zinc-700">
-            <Activity className="w-4 h-4 text-blue-600" />
-            <span>Live Wikipedia & RSS Wire</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs font-medium text-zinc-700">
-            <Lock className="w-4 h-4 text-amber-600" />
-            <span>SHA-256 Immutability</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs font-medium text-zinc-700">
-            <Database className="w-4 h-4 text-purple-600" />
-            <span>Local Vector Store</span>
-          </div>
-        </div>
-
       </div>
     </section>
   );
 }
-

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bot, Sparkles, AlertTriangle, ShieldCheck, Database, FileText, CheckCircle2, Loader2, ArrowUpRight, Copy } from 'lucide-react';
+import { Bot, Sparkles, AlertTriangle, ShieldCheck, Database, FileText, CheckCircle2, Loader2 } from 'lucide-react';
 
 export default function AIForensicReport({
   referenceSubject,
@@ -64,105 +64,91 @@ export default function AIForensicReport({
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 mb-12">
-      
-      {/* Tab Navigation Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded bg-zinc-100 text-zinc-700 text-[11px] font-mono font-medium">INTELLIGENCE 06</span>
-            <h3 className="text-lg font-semibold text-zinc-900">AI Forensic Reasoning & Local Vector Archive</h3>
-          </div>
-          <p className="text-xs text-zinc-500 mt-0.5">Synthesizes Groq LLM forensic evaluation and stores 512-dimensional vector embeddings locally</p>
-        </div>
+    <section className="max-w-7xl mx-auto px-6 py-16">
+      <div className="max-w-3xl mb-10">
+        <span className="mono-tag text-xs text-coral">AI FORENSIC REASONING & LOCAL VECTOR ARCHIVE</span>
+        <h2 className="text-3xl sm:text-5xl font-display font-normal tracking-tight mt-2 text-ink">
+          Groq LLM intelligence synthesis & local vector store.
+        </h2>
+        <p className="text-slate mt-3 text-base leading-relaxed">
+          Deep language model analysis synthesizes journalistic context against facial vector distances, while the local SQLite/Chroma vector database persists 512-dimensional embeddings directly in your workspace folder.
+        </p>
+      </div>
 
-        <div className="flex gap-1.5 p-1 bg-zinc-100 rounded-lg border border-zinc-200">
-          <button
-            onClick={() => setActiveTab('report')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
-              activeTab === 'report'
-                ? 'bg-white text-zinc-900 shadow-xs border border-zinc-200/80'
-                : 'text-zinc-600 hover:text-zinc-900'
-            }`}
-          >
-            <Bot className="w-3.5 h-3.5 text-indigo-600" />
-            <span>Groq AI Forensic Report</span>
-          </button>
+      {/* Navigation Tabs (Report vs Vector Store) */}
+      <div className="flex gap-3 mb-6 border-b border-hairline pb-3">
+        <button
+          onClick={() => setActiveTab('report')}
+          className={`px-4 py-2 rounded-pill text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            activeTab === 'report' ? 'bg-primary text-white shadow-sm' : 'bg-soft-stone text-ink hover:bg-hairline'
+          }`}
+        >
+          <Bot className="w-3.5 h-3.5 text-coral" />
+          <span>Groq AI Forensic Intelligence</span>
+        </button>
 
-          <button
-            onClick={() => {
-              setActiveTab('vector_db');
-              handleFetchVectorDb();
-            }}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
-              activeTab === 'vector_db'
-                ? 'bg-white text-zinc-900 shadow-xs border border-zinc-200/80'
-                : 'text-zinc-600 hover:text-zinc-900'
-            }`}
-          >
-            <Database className="w-3.5 h-3.5 text-blue-600" />
-            <span>Local Vector DB</span>
-          </button>
-        </div>
+        <button
+          onClick={() => {
+            setActiveTab('vector_db');
+            handleFetchVectorDb();
+          }}
+          className={`px-4 py-2 rounded-pill text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            activeTab === 'vector_db' ? 'bg-primary text-white shadow-sm' : 'bg-soft-stone text-ink hover:bg-hairline'
+          }`}
+        >
+          <Database className="w-3.5 h-3.5 text-action-blue" />
+          <span>Local Vector Database Store</span>
+        </button>
       </div>
 
       {/* TAB 1: GROQ LLM FORENSIC REPORT */}
       {activeTab === 'report' && (
-        <div className="bg-white rounded-xl p-5 sm:p-6 border border-zinc-200 shadow-card">
+        <div className="bg-white rounded-lg p-6 sm:p-8 border border-border-light shadow-sm">
           {!report ? (
             <div className="text-center py-12">
-              <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-3 border border-indigo-100">
-                <Bot className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-semibold text-zinc-900">Generate Groq AI Forensic Intelligence Report</h3>
-              <p className="text-xs text-zinc-500 max-w-md mx-auto mt-1 mb-5">
-                Evaluates semantic coherence between reference subject "{referenceSubject}", visual similarity ({similarityScore}%), and scraped context using Groq LLM.
+              <Bot className="w-12 h-12 mx-auto text-coral mb-4 animate-bounce" />
+              <h3 className="text-xl font-display font-medium text-ink">Generate AI Forensic Intelligence Report</h3>
+              <p className="text-xs text-slate max-w-md mx-auto mt-2 mb-6">
+                Passes the live scraped article text, facial vector confidence ({similarityScore}%), and SHA-256 fingerprint to Groq LLM (Llama 3.3 70B) for deepfake risk assessment and semantic coherence auditing.
               </p>
               <button
                 onClick={handleGenerateReport}
                 disabled={isLoading}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-950 text-white text-xs font-medium hover:bg-zinc-800 active:bg-zinc-900 transition-all shadow-xs disabled:opacity-50"
+                className="bg-primary hover:bg-cohere-black text-white px-8 py-3 rounded-pill text-xs font-semibold transition-all shadow-md inline-flex items-center gap-2 active:scale-95 disabled:opacity-50"
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+                    <Loader2 className="w-4 h-4 animate-spin text-coral" />
                     <span>Synthesizing Forensic Intelligence...</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                    <Sparkles className="w-4 h-4 text-coral" />
                     <span>Run Groq AI Forensic Synthesis</span>
                   </>
                 )}
               </button>
             </div>
           ) : (
-            <div className="space-y-5 animate-in fade-in duration-200">
-              
-              {/* Verdict Header Strip */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-zinc-50 p-4 rounded-lg border border-zinc-200 gap-3">
+            <div className="space-y-6 animate-in fade-in duration-300">
+              {/* Verdict Header */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-soft-stone/70 p-4 rounded-md border border-card-border gap-3">
                 <div className="flex items-center gap-2.5">
-                  <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                  <ShieldCheck className="w-6 h-6 text-deep-green" />
                   <div>
-                    <span className="text-[10px] font-mono text-zinc-400 uppercase">AUTHENTICITY VERDICT</span>
-                    <h4 className="text-sm font-semibold text-zinc-900">{report.authenticity_verdict}</h4>
+                    <span className="text-[10px] mono-tag text-slate">AUTHENTICITY VERDICT</span>
+                    <h4 className="text-lg font-display font-bold text-ink">{report.authenticity_verdict}</h4>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 text-xs font-mono">
                   <div className="text-right">
-                    <span className="text-[10px] font-mono text-zinc-400 block">MANIPULATION RISK</span>
-                    <span className={`text-xs font-mono font-bold ${
-                      (report.deepfake_anomaly_risk_score || 8) < 20 ? 'text-emerald-600' : 'text-amber-600'
-                    }`}>
-                      {report.deepfake_anomaly_risk_score || 8}% RISK (LOW)
-                    </span>
+                    <span className="text-slate block text-[10px]">ANOMALY RISK SCORE:</span>
+                    <strong className="text-emerald-700 font-bold">{report.deepfake_anomaly_risk_score} / 100 (LOW RISK)</strong>
                   </div>
-
                   <button
                     onClick={handleGenerateReport}
-                    disabled={isLoading}
-                    className="px-2.5 py-1 rounded-md border border-zinc-200 bg-white text-xs font-medium text-zinc-700 hover:bg-zinc-100 transition-all"
+                    className="px-3 py-1 bg-white border border-hairline rounded-pill hover:bg-soft-stone transition-colors text-[11px]"
                   >
                     Re-Analyze
                   </button>
@@ -170,56 +156,50 @@ export default function AIForensicReport({
               </div>
 
               {/* Executive Summary */}
-              <div className="bg-zinc-50 p-4 rounded-lg border border-zinc-200">
-                <span className="text-[10px] font-mono text-zinc-400 uppercase block mb-1">EXECUTIVE FORENSIC SUMMARY</span>
-                <p className="text-xs text-zinc-800 leading-relaxed font-sans">{report.executive_summary}</p>
+              <div>
+                <span className="mono-tag text-xs text-slate block mb-1">EXECUTIVE FORENSIC SUMMARY:</span>
+                <p className="text-sm text-ink leading-relaxed bg-pale-green/40 p-4 rounded border border-emerald-200">
+                  {report.executive_summary}
+                </p>
               </div>
 
-              {/* Grid: Context & Entity Extraction */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                
-                {/* Context Coherence */}
-                <div className="bg-zinc-50 p-4 rounded-lg border border-zinc-200">
-                  <span className="text-[10px] font-mono text-zinc-400 uppercase block mb-1">SEMANTIC CONTEXT COHERENCE</span>
-                  <p className="text-xs text-zinc-700 leading-relaxed font-sans">{report.context_coherence_analysis}</p>
+              {/* Entity Extraction Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs">
+                <div className="bg-soft-stone/50 p-3 rounded border border-card-border">
+                  <span className="text-slate text-[10px] block">PRIMARY SUBJECT:</span>
+                  <strong className="text-ink">{report.entity_extraction.primary_subject}</strong>
                 </div>
-
-                {/* Entity Extraction */}
-                <div className="bg-zinc-50 p-4 rounded-lg border border-zinc-200 space-y-2">
-                  <span className="text-[10px] font-mono text-zinc-400 uppercase block">EXTRACTED ENTITIES</span>
-                  
-                  <div className="text-xs font-mono space-y-1">
-                    <div className="flex justify-between">
-                      <span className="text-zinc-500">Primary Subject:</span>
-                      <strong className="text-zinc-900">{report.entity_extraction?.primary_subject || referenceSubject}</strong>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-zinc-500">Location:</span>
-                      <span className="text-zinc-700">{report.entity_extraction?.location || 'International Media'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-zinc-500">Event Context:</span>
-                      <span className="text-zinc-700 truncate max-w-[170px]">{report.entity_extraction?.event_name || 'Public Press Index'}</span>
-                    </div>
-                  </div>
+                <div className="bg-soft-stone/50 p-3 rounded border border-card-border">
+                  <span className="text-slate text-[10px] block">INFERRED LOCATION:</span>
+                  <strong className="text-ink">{report.entity_extraction.location}</strong>
                 </div>
-
+                <div className="bg-soft-stone/50 p-3 rounded border border-card-border">
+                  <span className="text-slate text-[10px] block">DETECTED ENTITIES:</span>
+                  <strong className="text-ink truncate block">{report.entity_extraction.detected_entities.join(', ')}</strong>
+                </div>
               </div>
 
-              {/* Recommendations */}
-              {report.forensic_recommendations && (
-                <div className="bg-zinc-50 p-4 rounded-lg border border-zinc-200">
-                  <span className="text-[10px] font-mono text-zinc-400 uppercase block mb-2">CHAIN OF CUSTODY RECOMMENDATIONS</span>
-                  <ul className="space-y-1 text-xs text-zinc-700 font-mono">
-                    {report.forensic_recommendations.map((rec, i) => (
-                      <li key={i} className="flex items-start gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
+              {/* Context Coherence & Recommendations */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <div>
+                  <span className="mono-tag text-xs text-slate block mb-1">CONTEXTUAL COHERENCE AUDIT:</span>
+                  <p className="text-xs text-slate leading-relaxed bg-white p-3.5 rounded border border-border-light">
+                    {report.context_coherence_analysis}
+                  </p>
+                </div>
+
+                <div>
+                  <span className="mono-tag text-xs text-slate block mb-1">FORENSIC RECOMMENDATIONS:</span>
+                  <ul className="text-xs text-ink space-y-1.5 bg-white p-3 rounded border border-border-light">
+                    {report.forensic_recommendations.map((rec, idx) => (
+                      <li key={idx} className="flex items-start gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-deep-green shrink-0 mt-0.5" />
                         <span>{rec}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
-              )}
+              </div>
             </div>
           )}
         </div>

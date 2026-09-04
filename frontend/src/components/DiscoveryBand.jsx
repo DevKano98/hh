@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Compass, Loader2, Sparkles, Filter, RefreshCw, Globe } from 'lucide-react';
+import { Search, Compass, Loader2 } from 'lucide-react';
 import CandidateCard from './CandidateCard';
 
 export default function DiscoveryBand({
@@ -12,119 +12,115 @@ export default function DiscoveryBand({
   onSelectCandidate
 }) {
   const [activeFilter, setActiveFilter] = useState('All');
-  const filters = ['All Sources', 'Wikipedia Verified', 'Wikimedia Commons', 'Google News'];
-
-  const filteredCandidates = candidates.filter((c) => {
-    if (activeFilter === 'All Sources' || activeFilter === 'All') return true;
-    if (activeFilter === 'Wikipedia Verified') return c.source?.includes('Wikipedia');
-    if (activeFilter === 'Wikimedia Commons') return c.source?.includes('Commons') || c.source?.includes('Global');
-    if (activeFilter === 'Google News') return c.source?.includes('News') || c.media_type === 'news';
-    return true;
-  });
+  const filters = ['All Public Web', 'News Portals', 'Broadcast Streams', 'Media Archives'];
 
   return (
-    <section id="discovery-section" className="max-w-7xl mx-auto px-4 sm:px-6 mb-12">
-      
-      {/* Header & Search Control */}
-      <div className="bg-white rounded-xl p-5 sm:p-6 border border-zinc-200 shadow-card mb-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 pb-4 border-b border-zinc-100">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded bg-zinc-100 text-zinc-700 text-[11px] font-mono font-medium">DISCOVERY 02</span>
-              <h3 className="text-lg font-semibold text-zinc-900">Live Web Index & Media Telemetry</h3>
-            </div>
-            <p className="text-xs text-zinc-500 mt-0.5">Scrapes Wikipedia official galleries, Wikimedia Commons press captures, and Google News RSS in real-time</p>
-          </div>
+    <section id="discovery-section" className="bg-deep-green text-white py-20 my-16">
+      <div className="max-w-7xl mx-auto px-6">
+        
+        {/* Section Header */}
+        <div className="max-w-3xl mb-12">
+          <span className="mono-tag text-xs text-coral-soft">STEP 02 // LIVE WEB DISCOVERY & RECOGNITION</span>
+          <h2 className="text-3xl sm:text-5xl font-display font-normal tracking-tight mt-2 text-white">
+            Multi-source candidate indexing & cosine similarity verification.
+          </h2>
+          <p className="text-neutral-300 mt-4 text-base leading-relaxed">
+            Query publicly indexed web portals, extract facial geometries from candidate imagery, and rank candidates against the reference embedding vector using cosine distance metrics.
+          </p>
+        </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono text-zinc-500 bg-zinc-50 border border-zinc-200 px-2.5 py-1 rounded-md">
-              {candidates.length} CANDIDATES INDEXED
+        {/* Discovery Controls Bar */}
+        <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 sm:p-8 border border-white/15 shadow-xl">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              onSearch();
+            }}
+            className="flex flex-col md:flex-row gap-4 items-center justify-between mb-8"
+          >
+            <div className="flex-1 w-full relative">
+              <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search keywords (e.g. portrait human face news keynote summit)..."
+                className="w-full bg-black/30 border border-white/20 rounded-pill pl-12 pr-4 py-3 text-sm text-white placeholder-neutral-400 focus:outline-none focus:border-coral transition-colors font-sans"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSearching}
+              className="w-full md:w-auto bg-white text-ink px-8 py-3 rounded-pill text-xs font-semibold hover:bg-coral hover:text-white transition-all shadow-md flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
+            >
+              {isSearching ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-coral" />
+                  <span>Querying Web Indexes...</span>
+                </>
+              ) : (
+                <>
+                  <Search className="w-4 h-4" />
+                  <span>Execute Live Discovery</span>
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Coral Taxonomy Filter Chips */}
+          <div className="flex flex-wrap gap-2 items-center text-xs">
+            <span className="text-neutral-300 mono-tag mr-2">INDEX FILTER:</span>
+            {filters.map((f) => {
+              const isActive = activeFilter === f;
+              return (
+                <button
+                  key={f}
+                  onClick={() => setActiveFilter(f)}
+                  type="button"
+                  className={`px-3.5 py-1 rounded-sm font-medium transition-colors ${
+                    isActive
+                      ? 'bg-coral text-white'
+                      : 'bg-transparent border border-coral text-coral-soft hover:bg-coral/20'
+                  }`}
+                >
+                  {f}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Discovered Candidates Grid */}
+        <div className="mt-12">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-display font-medium text-white">Discovered Candidate Matches</h3>
+            <span className="text-xs font-mono text-neutral-300 bg-white/10 px-3 py-1 rounded-full">
+              {candidates.length} Candidates Analyzed
             </span>
           </div>
+
+          {candidates.length === 0 ? (
+            <div className="py-16 text-center border border-white/10 rounded-lg bg-white/5">
+              <Compass className="w-12 h-12 mx-auto text-neutral-400 mb-3" />
+              <p className="text-base text-neutral-200 font-medium">No Candidates Discovered Yet</p>
+              <p className="text-xs text-neutral-400 mt-1">Click "Execute Live Discovery" to query public indexes.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {candidates.map((cand) => (
+                <CandidateCard
+                  key={cand.id}
+                  candidate={cand}
+                  onSelect={onSelectCandidate}
+                  isSelected={selectedCandidate?.id === cand.id}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Search Input Form */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            onSearch();
-          }}
-          className="flex flex-col sm:flex-row gap-2.5 mb-4"
-        >
-          <div className="flex-1 relative">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search reference subject keywords (e.g. Lionel Messi, Samantha, Disha Patani)..."
-              className="w-full bg-zinc-50 border border-zinc-200 rounded-lg pl-10 pr-4 py-2 text-xs text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 font-sans"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isSearching}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-zinc-950 text-white text-xs font-medium hover:bg-zinc-800 active:bg-zinc-900 transition-all shadow-xs disabled:opacity-50"
-          >
-            {isSearching ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
-                <span>Scraping Web Indexes...</span>
-              </>
-            ) : (
-              <>
-                <RefreshCw className="w-3.5 h-3.5" />
-                <span>Execute Live Scrape</span>
-              </>
-            )}
-          </button>
-        </form>
-
-        {/* Filter Chips */}
-        <div className="flex flex-wrap gap-1.5 items-center text-xs">
-          <span className="text-zinc-400 font-mono text-[11px] mr-1">FILTER:</span>
-          {filters.map((f) => {
-            const isActive = activeFilter === f || (f === 'All Sources' && activeFilter === 'All');
-            return (
-              <button
-                key={f}
-                onClick={() => setActiveFilter(f)}
-                type="button"
-                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all border ${
-                  isActive
-                    ? 'bg-zinc-900 text-white border-zinc-900 shadow-xs'
-                    : 'bg-zinc-50 text-zinc-600 border-zinc-200 hover:bg-zinc-100 hover:text-zinc-900'
-                }`}
-              >
-                {f}
-              </button>
-            );
-          })}
-        </div>
       </div>
-
-      {/* Discovered Candidates Grid */}
-      {filteredCandidates.length === 0 ? (
-        <div className="py-16 text-center border border-zinc-200 rounded-xl bg-white shadow-subtle">
-          <Compass className="w-10 h-10 mx-auto text-zinc-400 mb-2" />
-          <p className="text-sm font-semibold text-zinc-800">No Candidates Found</p>
-          <p className="text-xs text-zinc-500 mt-0.5">Click "Execute Live Scrape" to query public open-source repositories.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredCandidates.map((cand) => (
-            <CandidateCard
-              key={cand.id}
-              candidate={cand}
-              onSelect={onSelectCandidate}
-              isSelected={selectedCandidate?.id === cand.id}
-            />
-          ))}
-        </div>
-      )}
-
     </section>
   );
 }
-

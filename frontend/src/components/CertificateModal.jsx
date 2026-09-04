@@ -6,8 +6,8 @@ export default function CertificateModal({ isOpen, onClose, evidenceData, eviden
 
   const handleDownloadJson = () => {
     const cert = {
-      title: "TraceLens Cryptographic Provenance Certificate",
-      specification: "TraceLens Enterprise Spec v2.4",
+      title: "TraceLens Forensic Cryptographic Provenance Certificate",
+      specification: "Cohere Enterprise Provenance Specification 2026",
       issued_at: new Date().toISOString(),
       canonical_evidence_data: evidenceData,
       sha256_cryptographic_fingerprint: evidenceHash,
@@ -30,99 +30,97 @@ export default function CertificateModal({ isOpen, onClose, evidenceData, eviden
   };
 
   return (
-    <div className="fixed inset-0 bg-zinc-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl max-w-xl w-full border border-zinc-200 shadow-modal overflow-hidden animate-in fade-in zoom-in duration-150">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg max-w-2xl w-full border border-border-light shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
         
         {/* Modal Header */}
-        <div className="bg-zinc-950 text-white p-5 flex justify-between items-center border-b border-zinc-800">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 bg-emerald-600 rounded-md flex items-center justify-center text-white">
-              <ShieldCheck className="w-4 h-4" />
+        <div className="bg-primary text-white p-6 flex justify-between items-center border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-emerald-500 rounded flex items-center justify-center text-white">
+              <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-white">Cryptographic Provenance Certificate</h3>
-              <p className="text-[11px] text-zinc-400 font-mono">SPEC: TL-2026-ENTERPRISE // EVM ANCHOR</p>
+              <h3 className="text-lg font-display font-semibold">Cryptographic Provenance Certificate</h3>
+              <p className="text-xs text-muted font-mono">SPEC: COHERE-2026-ALPHA // IMMUTABLE EVM ANCHOR</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-zinc-400 hover:text-white transition-colors">
-            <X className="w-4 h-4" />
+          <button onClick={onClose} className="text-muted hover:text-white transition-colors">
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Certificate Body */}
-        <div className="p-6 space-y-5">
+        {/* Certificate Body (Printable High-End Layout) */}
+        <div className="p-8 space-y-6">
           
-          {/* Header Stamp */}
-          <div className="border-b border-zinc-100 pb-4 text-center">
-            <span className="text-[11px] font-mono text-emerald-800 font-semibold bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200">
-              VERIFIED PROVENANCE CERTIFICATE
+          {/* Certificate Header Stamp */}
+          <div className="border-b border-hairline pb-6 text-center">
+            <span className="mono-tag text-xs text-deep-green font-bold tracking-widest bg-pale-green px-3 py-1 rounded-full border border-emerald-200">
+              VERIFIED AUTHENTICITY CERTIFICATE
             </span>
-            <h2 className="text-xl font-bold text-zinc-900 mt-2">
+            <h2 className="text-2xl font-display font-medium text-cohere-black mt-3">
               Media Provenance & Identity Assurance Record
             </h2>
-            <p className="text-xs text-zinc-500 mt-0.5">
-              Issued by TraceLens Visual Discovery & Blockchain Verification Engine
+            <p className="text-xs text-slate mt-1">
+              Issued under authorization by the TraceLens Visual Discovery & Blockchain Verification Engine
             </p>
           </div>
 
           {/* Evidence Grid */}
-          <div className="grid grid-cols-2 gap-3 text-xs font-mono bg-zinc-50 p-3.5 rounded-lg border border-zinc-200">
+          <div className="grid grid-cols-2 gap-4 text-xs font-mono bg-soft-stone/60 p-4 rounded-md border border-card-border">
             <div>
-              <span className="text-zinc-400 block text-[10px]">DISCOVERED URL:</span>
-              <strong className="text-zinc-900 truncate block" title={evidenceData?.url}>{evidenceData?.url || 'N/A'}</strong>
+              <span className="text-slate block text-[10px] mono-tag">DISCOVERED URL:</span>
+              <strong className="text-ink truncate block" title={evidenceData?.url}>{evidenceData?.url || 'N/A'}</strong>
             </div>
             <div>
-              <span className="text-zinc-400 block text-[10px]">PLATFORM SOURCE:</span>
-              <strong className="text-zinc-900">{evidenceData?.source || 'Public Web Index'}</strong>
+              <span className="text-slate block text-[10px] mono-tag">PLATFORM SOURCE:</span>
+              <strong className="text-ink">{evidenceData?.source || 'Public Index'}</strong>
             </div>
             <div>
-              <span className="text-zinc-400 block text-[10px]">SIMILARITY SCORE:</span>
-              <strong className="text-emerald-700">{evidenceData?.similarity_score}% (Verified Match)</strong>
+              <span className="text-slate block text-[10px] mono-tag">VISUAL SIMILARITY SCORE:</span>
+              <strong className="text-deep-green text-sm">{evidenceData?.similarity_score}% (Likely Match)</strong>
             </div>
             <div>
-              <span className="text-zinc-400 block text-[10px]">TIMESTAMP:</span>
-              <strong className="text-zinc-900">{evidenceData?.discovery_timestamp || new Date().toISOString().slice(0, 19)}</strong>
+              <span className="text-slate block text-[10px] mono-tag">DISCOVERY TIMESTAMP:</span>
+              <strong className="text-ink">{evidenceData?.discovery_timestamp || new Date().toISOString()}</strong>
             </div>
           </div>
 
           {/* SHA-256 Fingerprint */}
           <div>
-            <span className="text-[11px] font-mono text-zinc-500 block mb-1">CANONICAL SHA-256 FINGERPRINT:</span>
-            <div className="bg-zinc-950 text-emerald-300 font-mono text-xs p-3 rounded-lg break-all select-all font-semibold">
+            <span className="text-xs mono-tag text-slate block mb-1">CANONICAL SHA-256 FINGERPRINT:</span>
+            <div className="bg-primary text-emerald-300 font-mono text-xs p-3 rounded break-all select-all font-semibold">
               {evidenceHash || '8f91c4d8c729482b0129a8f2381270912384a9f8120394812304918239048123'}
             </div>
           </div>
 
           {/* On-Chain Receipt Proof */}
-          <div className="flex items-center justify-between border-t border-zinc-100 pt-3 text-xs font-mono">
+          <div className="flex items-center justify-between border-t border-hairline pt-4 text-xs font-mono">
             <div>
-              <div className="text-zinc-400 text-[10px]">BLOCKCHAIN RECORD:</div>
+              <div className="text-slate">BLOCKCHAIN STATUS:</div>
               <strong className="text-emerald-700">CONFIRMED ON LOCAL EVM (BLOCK #{blockchainRecord?.block || 148})</strong>
             </div>
-            <div className="text-right">
-              <div className="text-zinc-400 text-[10px]">TX HASH:</div>
-              <span className="text-zinc-700">{blockchainRecord ? `${blockchainRecord.tx_hash.slice(0, 10)}...` : '0x5F...'}</span>
+            <div className="w-12 h-12 bg-primary/5 border border-hairline rounded flex items-center justify-center text-slate">
+              <QrCode className="w-8 h-8 text-primary" />
             </div>
           </div>
+        </div>
 
-          {/* Action Footer */}
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
-            <button
-              onClick={handlePrint}
-              className="px-3 py-1.5 rounded-lg border border-zinc-200 text-xs font-medium text-zinc-700 hover:bg-zinc-50 transition-all flex items-center gap-1.5"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              <span>Print Record</span>
-            </button>
-            <button
-              onClick={handleDownloadJson}
-              className="px-3 py-1.5 rounded-lg bg-zinc-950 text-white text-xs font-medium hover:bg-zinc-800 transition-all flex items-center gap-1.5 shadow-xs"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>Download JSON</span>
-            </button>
-          </div>
-
+        {/* Action Buttons */}
+        <div className="bg-soft-stone p-5 flex justify-end gap-3 border-t border-hairline">
+          <button
+            onClick={handlePrint}
+            className="px-4 py-2 bg-white border border-hairline text-ink rounded-pill text-xs font-medium hover:bg-hairline transition-colors flex items-center gap-1.5"
+          >
+            <Printer className="w-3.5 h-3.5" />
+            <span>Print Certificate</span>
+          </button>
+          <button
+            onClick={handleDownloadJson}
+            className="px-5 py-2 bg-primary text-white rounded-pill text-xs font-medium hover:bg-cohere-black transition-colors flex items-center gap-1.5 shadow-sm"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Download JSON Proof</span>
+          </button>
         </div>
 
       </div>

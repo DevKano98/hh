@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Scan, Activity, Eye, Compass, Maximize2, Sparkles, Sliders } from 'lucide-react';
+import { Scan, Activity, Eye, Compass, Maximize2, Sparkles } from 'lucide-react';
 
 export default function VectorGeometryInspector({
   referenceImage,
@@ -22,7 +22,7 @@ export default function VectorGeometryInspector({
     ctx.clearRect(0, 0, width, height);
 
     // Grid lines
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
     ctx.lineWidth = 1;
     for (let x = 0; x < width; x += 30) {
       ctx.beginPath();
@@ -53,9 +53,9 @@ export default function VectorGeometryInspector({
     }
     ctx.stroke();
 
-    // Candidate Waveform (Blue/Indigo)
+    // Candidate Waveform (Coral / Sky)
     ctx.beginPath();
-    ctx.strokeStyle = '#60A5FA';
+    ctx.strokeStyle = '#FF7759';
     ctx.lineWidth = 1.5;
     ctx.setLineDash([4, 3]);
     for (let i = 0; i <= points; i++) {
@@ -70,22 +70,22 @@ export default function VectorGeometryInspector({
   }, [similarityScore]);
 
   return (
-    <div className="bg-zinc-950 text-white rounded-xl p-5 sm:p-6 border border-zinc-800 shadow-card my-8">
+    <div className="bg-primary text-white rounded-lg p-6 sm:p-8 border border-white/10 shadow-xl my-10">
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-zinc-800 pb-3 mb-5 gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-white/10 pb-4 mb-6 gap-4">
         <div>
-          <span className="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 text-[10px] font-mono font-medium">BIOMETRIC 03</span>
-          <h3 className="text-base sm:text-lg font-semibold text-white mt-1">
+          <span className="mono-tag text-xs text-coral">BIOMETRIC GEOMETRY & EMBEDDING DYNAMICS</span>
+          <h3 className="text-2xl font-display font-medium text-white mt-1">
             Facial Landmark Alignment & 512-D Vector Projection
           </h3>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => setShowMesh(!showMesh)}
-            className={`px-2.5 py-1 rounded-md text-xs font-mono transition-all flex items-center gap-1.5 border ${
-              showMesh ? 'bg-emerald-950 text-emerald-300 border-emerald-800' : 'bg-zinc-900 text-zinc-400 border-zinc-800'
+            className={`px-3 py-1.5 rounded-pill text-xs font-mono transition-all flex items-center gap-1.5 ${
+              showMesh ? 'bg-emerald-500 text-white' : 'bg-white/10 text-neutral-300'
             }`}
           >
             <Scan className="w-3.5 h-3.5" />

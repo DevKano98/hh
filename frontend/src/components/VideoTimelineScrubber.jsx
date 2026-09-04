@@ -17,6 +17,7 @@ export default function VideoTimelineScrubber({ candidate, candidates = [], sele
     { time: '00:22.000', score: 0.912, label: `${subjectName} — Concluding Capture (Frame #58)` },
   ];
 
+  // Pick frame image from scraped candidate pool or active media
   const getFrameImage = (idx) => {
     if (candidates && candidates.length > 0) {
       return candidates[idx % candidates.length]?.thumbnail || candidates[idx % candidates.length]?.url || activeImage;
@@ -27,64 +28,66 @@ export default function VideoTimelineScrubber({ candidate, candidates = [], sele
   const currentFrameImage = getFrameImage(selectedFrameIdx);
 
   return (
-    <div className="bg-white rounded-xl p-5 sm:p-6 border border-zinc-200 shadow-card my-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-zinc-100 pb-4 mb-6 gap-3">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded bg-zinc-100 text-zinc-700 text-[11px] font-mono font-medium">TEMPORAL 05</span>
-            <h3 className="text-lg font-semibold text-zinc-900">Broadcast Stream & Multi-Frame Scrubber</h3>
+    <div className="bg-white rounded-lg p-6 sm:p-8 border border-border-light shadow-sm my-10">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-hairline pb-4 mb-6 gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 bg-coral text-white rounded flex items-center justify-center">
+            <Film className="w-4 h-4" />
           </div>
-          <p className="text-xs text-zinc-500 mt-0.5">FFmpeg frame extraction across temporal archival broadcasts with facial confidence tracking</p>
+          <div>
+            <span className="text-[10px] mono-tag text-slate">FFMPEG VIDEO & MULTI-ANGLE TEMPORAL ANALYSIS</span>
+            <h3 className="text-xl font-display font-medium text-ink">Broadcast Stream & Multi-Frame Scrubber</h3>
+          </div>
         </div>
 
         <div className="flex items-center gap-3 text-xs font-mono">
-          <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md font-medium">
-            {candidates?.length || 6} ARCHIVAL FRAMES INDEXED
+          <span className="px-3 py-1 bg-pale-green text-deep-green rounded-full font-bold">
+            {candidates?.length || 6} ARCHIVAL CAPTURES INDEXED
           </span>
         </div>
       </div>
 
       {/* Main Selected Frame View */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center mb-6">
-        <div className="lg:col-span-8 relative aspect-video bg-zinc-950 rounded-lg overflow-hidden border border-zinc-200 shadow-inner group">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center mb-8">
+        <div className="lg:col-span-8 relative aspect-video bg-black rounded-md overflow-hidden border border-border-light shadow-inner group">
           <img
             src={currentFrameImage}
             alt={frames[selectedFrameIdx].label}
             className="w-full h-full object-cover"
           />
-          <div className="absolute top-2.5 left-2.5 bg-zinc-900/90 backdrop-blur text-white px-2 py-0.5 rounded text-[11px] font-mono flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>FRAME: {frames[selectedFrameIdx].time}</span>
+          <div className="absolute top-3 left-3 bg-black/80 backdrop-blur text-white px-2.5 py-1 rounded text-xs font-mono flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+            <span>FRAME TIME: {frames[selectedFrameIdx].time}</span>
           </div>
 
-          <div className="absolute bottom-2.5 right-2.5 bg-emerald-600 text-white px-2.5 py-0.5 rounded-md text-[11px] font-mono font-semibold shadow-xs">
+          <div className="absolute bottom-3 right-3 bg-emerald-600 text-white px-3 py-1 rounded-full text-xs font-mono font-bold shadow-md">
             SIMILARITY: {(frames[selectedFrameIdx].score * 100).toFixed(1)}%
           </div>
         </div>
 
         {/* Frame Info */}
-        <div className="lg:col-span-4 space-y-3 font-mono text-xs bg-zinc-50 p-4 rounded-lg border border-zinc-200">
+        <div className="lg:col-span-4 space-y-4 font-mono text-xs bg-soft-stone/60 p-5 rounded-md border border-card-border">
           <div>
-            <span className="text-zinc-400 text-[10px] block">FRAME METADATA:</span>
-            <strong className="text-zinc-900 text-xs font-sans block truncate">{frames[selectedFrameIdx].label}</strong>
+            <span className="text-slate text-[10px] block">FRAME METADATA:</span>
+            <strong className="text-ink text-sm font-sans">{frames[selectedFrameIdx].label}</strong>
           </div>
 
-          <div className="space-y-2 pt-2 border-t border-zinc-200">
+          <div className="space-y-2 pt-2 border-t border-hairline">
             <div className="flex justify-between">
-              <span className="text-zinc-500">Timestamp:</span>
-              <strong className="text-zinc-900">{frames[selectedFrameIdx].time}</strong>
+              <span className="text-slate">Timestamp:</span>
+              <strong className="text-ink">{frames[selectedFrameIdx].time}</strong>
             </div>
             <div className="flex justify-between">
-              <span className="text-zinc-500">Stream Codec:</span>
-              <strong className="text-zinc-900">H.264 / UHD</strong>
+              <span className="text-slate">Resolution:</span>
+              <strong className="text-ink">3840x2160 UHD</strong>
             </div>
             <div className="flex justify-between">
-              <span className="text-zinc-500">Target Match:</span>
-              <strong className="text-zinc-900 truncate max-w-[130px]">{subjectName}</strong>
+              <span className="text-slate">Subject Match:</span>
+              <strong className="text-ink truncate max-w-[140px]">{subjectName}</strong>
             </div>
             <div className="flex justify-between">
-              <span className="text-zinc-500">Integrity:</span>
-              <strong className="text-emerald-700 font-semibold">VERIFIED FACE ✓</strong>
+              <span className="text-slate">Match State:</span>
+              <strong className="text-emerald-700">VERIFIED FACE ✓</strong>
             </div>
           </div>
         </div>
@@ -92,38 +95,38 @@ export default function VideoTimelineScrubber({ candidate, candidates = [], sele
 
       {/* Frame Timeline Thumbnail Strip */}
       <div className="space-y-2">
-        <div className="flex justify-between text-xs font-mono text-zinc-400">
+        <div className="flex justify-between text-xs font-mono text-slate">
           <span>00:00.000</span>
           <span>TEMPORAL SAMPLING STRIP ({subjectName})</span>
           <span>00:24.000</span>
         </div>
 
-        <div className="grid grid-cols-6 gap-2.5">
+        <div className="grid grid-cols-6 gap-3">
           {frames.map((f, idx) => {
             const thumbSrc = getFrameImage(idx);
             return (
               <button
                 key={idx}
                 onClick={() => setSelectedFrameIdx(idx)}
-                className={`p-1 rounded-lg transition-all text-left group border ${
+                className={`p-1 rounded transition-all text-left group ${
                   selectedFrameIdx === idx
-                    ? 'ring-2 ring-zinc-900 border-zinc-900 bg-zinc-100'
-                    : 'hover:bg-zinc-50 border-zinc-200 bg-white'
+                    ? 'ring-2 ring-coral bg-coral/10'
+                    : 'hover:bg-soft-stone border border-hairline'
                 }`}
               >
-                <div className="relative aspect-video rounded-md overflow-hidden bg-zinc-900 mb-1">
+                <div className="relative aspect-video rounded overflow-hidden bg-black/30 mb-1.5">
                   <img
                     src={thumbSrc}
                     alt={`Frame ${idx}`}
-                    className="w-full h-full object-cover group-hover:scale-102 transition-transform"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
                   {f.peak && (
-                    <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
                   )}
                 </div>
-                <div className="text-[10px] font-mono flex justify-between px-0.5">
-                  <span className="text-zinc-500">{f.time}</span>
-                  <span className={`font-semibold ${f.score > 0.95 ? 'text-emerald-700' : 'text-zinc-600'}`}>
+                <div className="text-[10px] font-mono flex justify-between">
+                  <span className="text-slate">{f.time}</span>
+                  <span className={`font-bold ${f.score > 0.95 ? 'text-emerald-600' : 'text-slate'}`}>
                     {(f.score * 100).toFixed(0)}%
                   </span>
                 </div>
@@ -136,4 +139,3 @@ export default function VideoTimelineScrubber({ candidate, candidates = [], sele
     </div>
   );
 }
-
