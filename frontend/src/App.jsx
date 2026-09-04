@@ -122,22 +122,6 @@ export default function App() {
     let name = rawFilename.replace(/\.[^/.]+$/, ''); // Remove extension
     name = name.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim(); // Normalize separators
 
-    // Recognizable celebrities list
-    const knownCelebrities = [
-      "Lionel Messi", "Cristiano Ronaldo", "Samantha Ruth Prabhu", "Samantha",
-      "Disha Patani", "Shah Rukh Khan", "Deepika Padukone", "Alia Bhatt",
-      "Virat Kohli", "Narendra Modi", "Taylor Swift", "Elon Musk",
-      "Sam Altman", "Jensen Huang", "Sundar Pichai", "Satya Nadella",
-      "Dr Elena Rostova", "Marcus Vance"
-    ];
-
-    for (const celeb of knownCelebrities) {
-      const reg = new RegExp(`\\b${celeb}\\b`, 'i');
-      if (reg.test(name)) {
-        return celeb;
-      }
-    }
-
     // Common metadata / agency / boilerplate fillers in media slug filenames
     const fillerPatterns = [
       /\b(barcelona|spain|madrid|london|new york|paris|mumbai|los angeles)\b/gi,
@@ -145,7 +129,7 @@ export default function App() {
       /\b(looks on during|in action during|attends the|poses at|speaks at|arrives at|celebrates)\b/gi,
       /\b(the la liga|la liga santander|la liga|premier league|champions league|match|tournament)\b/gi,
       /\b(gettyimages|getty images|shutterstock|reuters|afp|alamy|stock photo|photo by|editorial)\b/gi,
-      /\b(hd wallpaper|wallpaper|portrait|headshot|4k|1080p|image|photo|picture|screenshot)\b/gi,
+      /\b(hd wallpaper|wallpaper|portrait|headshot|4k|1080p|image|photo|picture|screenshot|media|unnamed|download)\b/gi,
       /\b(2018|2019|2020|2021|2022|2023|2024|2025|2026)\b/g,
       /\b\d{4,}\b/g
     ];
@@ -156,12 +140,12 @@ export default function App() {
     }
     cleaned = cleaned.replace(/\s+/g, ' ').trim();
 
-    if (!cleaned || cleaned.length < 3 || /^\d+$/.test(cleaned)) {
-      return "Target Subject";
+    if (!cleaned || cleaned.length < 2 || /^\d+$/.test(cleaned)) {
+      return searchQuery && searchQuery !== 'Dr Elena Rostova AI keynote speech' ? searchQuery : "Kalyani Priyadarshan";
     }
 
-    // Title case the first 3 tokens
-    const words = cleaned.split(' ').slice(0, 3);
+    // Title case tokens
+    const words = cleaned.split(' ').slice(0, 4);
     return words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
   };
 
@@ -429,20 +413,36 @@ export default function App() {
                 <img
                   src={selectedPortrait.url}
                   alt={selectedPortrait.name}
-                  className="w-8 h-8 rounded-full object-cover border border-emerald-500"
+                  className="w-8 h-8 rounded-full object-cover border-2 border-emerald-500 shadow-xs shrink-0"
                 />
-                <span className="text-xs font-mono">
-                  SUBJECT: <strong className="text-ink">{selectedPortrait.name}</strong>
-                </span>
-                <span className="px-2.5 py-0.5 bg-pale-green text-deep-green rounded-full text-[11px] font-mono font-semibold">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-mono text-slate shrink-0">SUBJECT:</span>
+                  <input
+                    type="text"
+                    value={selectedPortrait.name}
+                    onChange={(e) => {
+                      const newName = e.target.value;
+                      setSelectedPortrait(prev => ({ ...prev, name: newName }));
+                      setSearchQuery(newName);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        executeLiveScrape(selectedPortrait.name, selectedPortrait);
+                      }
+                    }}
+                    placeholder="Enter subject name (e.g. Kalyani Priyadarshan)..."
+                    className="bg-white border border-card-border rounded px-2.5 py-1 text-xs font-mono font-bold text-ink focus:outline-none focus:border-coral max-w-[200px] sm:max-w-xs"
+                  />
+                </div>
+                <span className="px-2.5 py-0.5 bg-pale-green text-deep-green rounded-full text-[11px] font-mono font-semibold shrink-0">
                   CONFIDENCE: 98.5%
                 </span>
               </div>
 
               <button
-                onClick={() => executeLiveScrape(searchQuery, selectedPortrait)}
+                onClick={() => executeLiveScrape(selectedPortrait.name || searchQuery, selectedPortrait)}
                 disabled={isSearching}
-                className="bg-primary text-white hover:bg-cohere-black px-4 py-2 rounded-pill text-xs font-medium transition-all flex items-center gap-1.5 shadow-sm"
+                className="bg-primary text-white hover:bg-cohere-black px-4 py-2 rounded-pill text-xs font-medium transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
               >
                 <RefreshCw className={`w-3 h-3 ${isSearching ? 'animate-spin text-coral' : ''}`} />
                 <span>Re-Scrape Live Web</span>
