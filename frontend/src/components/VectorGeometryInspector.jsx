@@ -105,23 +105,19 @@ export default function VectorGeometryInspector({
           <div className="relative aspect-square rounded overflow-hidden max-w-[260px] mx-auto border border-emerald-500/40">
             <img src={referenceImage} alt="Reference" className="w-full h-full object-cover" />
             {showMesh && (
-              <div className="absolute inset-0 pointer-events-none">
-                {/* SVG Landmark Nodes */}
-                <svg className="w-full h-full" viewBox="0 0 100 100">
-                  {/* Left Eye */}
-                  <circle cx="38" cy="40" r="2.5" fill="#10B981" />
-                  {/* Right Eye */}
-                  <circle cx="62" cy="40" r="2.5" fill="#10B981" />
-                  {/* Nose Tip */}
-                  <circle cx="50" cy="52" r="2.5" fill="#10B981" />
-                  {/* Mouth Corners */}
-                  <circle cx="42" cy="68" r="2" fill="#10B981" />
-                  <circle cx="58" cy="68" r="2" fill="#10B981" />
-                  {/* Contour Lines */}
-                  <polygon points="38,40 62,40 50,52" fill="none" stroke="#10B981" strokeWidth="0.8" strokeDasharray="2,2" />
-                  <polygon points="50,52 42,68 58,68" fill="none" stroke="#10B981" strokeWidth="0.8" strokeDasharray="2,2" />
-                  <path d="M 25 50 Q 50 85 75 50" fill="none" stroke="#10B981" strokeWidth="0.8" opacity="0.6" />
-                </svg>
+              <div className="absolute inset-0 pointer-events-none p-3 flex flex-col justify-between">
+                {/* Clean Precision Biometric Corner Brackets */}
+                <div className="flex justify-between items-start">
+                  <div className="w-4 h-4 border-t-2 border-l-2 border-emerald-400"></div>
+                  <div className="w-4 h-4 border-t-2 border-r-2 border-emerald-400"></div>
+                </div>
+                <div className="flex justify-center items-center">
+                  <div className="w-12 h-12 rounded-full border border-emerald-400/40 border-dashed animate-spin"></div>
+                </div>
+                <div className="flex justify-between items-end">
+                  <div className="w-4 h-4 border-b-2 border-l-2 border-emerald-400"></div>
+                  <div className="w-4 h-4 border-b-2 border-r-2 border-emerald-400"></div>
+                </div>
               </div>
             )}
           </div>
@@ -164,17 +160,19 @@ export default function VectorGeometryInspector({
           <div className="relative aspect-square rounded overflow-hidden max-w-[260px] mx-auto border border-coral/40">
             <img src={candidateImage} alt="Candidate" className="w-full h-full object-cover" />
             {showMesh && (
-              <div className="absolute inset-0 pointer-events-none">
-                <svg className="w-full h-full" viewBox="0 0 100 100">
-                  <circle cx="39" cy="41" r="2.5" fill="#FF7759" />
-                  <circle cx="61" cy="41" r="2.5" fill="#FF7759" />
-                  <circle cx="50" cy="53" r="2.5" fill="#FF7759" />
-                  <circle cx="43" cy="69" r="2" fill="#FF7759" />
-                  <circle cx="57" cy="69" r="2" fill="#FF7759" />
-                  <polygon points="39,41 61,41 50,53" fill="none" stroke="#FF7759" strokeWidth="0.8" strokeDasharray="2,2" />
-                  <polygon points="50,53 43,69 57,69" fill="none" stroke="#FF7759" strokeWidth="0.8" strokeDasharray="2,2" />
-                  <path d="M 26 51 Q 50 86 74 51" fill="none" stroke="#FF7759" strokeWidth="0.8" opacity="0.6" />
-                </svg>
+              <div className="absolute inset-0 pointer-events-none p-3 flex flex-col justify-between">
+                {/* Clean Precision Biometric Corner Brackets */}
+                <div className="flex justify-between items-start">
+                  <div className="w-4 h-4 border-t-2 border-l-2 border-coral"></div>
+                  <div className="w-4 h-4 border-t-2 border-r-2 border-coral"></div>
+                </div>
+                <div className="flex justify-center items-center">
+                  <div className="w-12 h-12 rounded-full border border-coral/40 border-dashed animate-spin"></div>
+                </div>
+                <div className="flex justify-between items-end">
+                  <div className="w-4 h-4 border-b-2 border-l-2 border-coral"></div>
+                  <div className="w-4 h-4 border-b-2 border-r-2 border-coral"></div>
+                </div>
               </div>
             )}
           </div>

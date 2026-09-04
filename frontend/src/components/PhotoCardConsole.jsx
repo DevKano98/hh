@@ -120,6 +120,7 @@ export default function PhotoCardConsole({
                   {detectedFaces && detectedFaces.length > 1 ? (
                     detectedFaces.map((f, idx) => {
                       const isSelected = selectedFaceIndex === idx;
+                      const [x, y, w, h] = f.bbox_pct || [10 + idx * 45, 15, 38, 50];
                       return (
                         <div
                           key={idx}
@@ -129,10 +130,10 @@ export default function PhotoCardConsole({
                               : 'border-coral/60 bg-coral/5 z-0'
                           }`}
                           style={{
-                            left: `${idx === 0 ? 15 : 55}%`,
-                            top: '15%',
-                            width: '35%',
-                            height: '55%'
+                            left: `${x}%`,
+                            top: `${y}%`,
+                            width: `${w}%`,
+                            height: `${h}%`
                           }}
                         >
                           <span className={`absolute -top-3 left-1 font-mono text-[9px] px-1.5 py-0.2 rounded shadow-xs text-white ${
@@ -144,8 +145,20 @@ export default function PhotoCardConsole({
                       );
                     })
                   ) : (
-                    /* Single Face Bounding Box */
-                    <div className="absolute inset-4 border-2 border-emerald-500 bg-emerald-500/10 rounded-xs pointer-events-none transition-all">
+                    /* Single Face Bounding Box using real coordinates */
+                    <div
+                      className="absolute border-2 border-emerald-500 bg-emerald-500/10 rounded-xs pointer-events-none transition-all"
+                      style={
+                        selectedPortrait?.bbox_pct
+                          ? {
+                              left: `${selectedPortrait.bbox_pct[0]}%`,
+                              top: `${selectedPortrait.bbox_pct[1]}%`,
+                              width: `${selectedPortrait.bbox_pct[2]}%`,
+                              height: `${selectedPortrait.bbox_pct[3]}%`
+                            }
+                          : { inset: '1rem' }
+                      }
+                    >
                       <span className="absolute -top-3 left-2 bg-emerald-600 text-white font-mono text-[9px] px-1.5 py-0.5 rounded shadow-xs">
                         FACE DETECTED {((selectedPortrait?.confidence || 0.985) * 100).toFixed(1)}%
                       </span>

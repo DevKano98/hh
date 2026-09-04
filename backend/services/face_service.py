@@ -66,15 +66,18 @@ class FaceService:
 
         # 2. OpenCV Cascade Multi-Face Detector
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        detected = self.cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=4, minSize=(60, 60))
+        detected = self.cascade.detectMultiScale(gray, scaleFactor=1.15, minNeighbors=6, minSize=(80, 80))
         
-        # If no cascade faces found, divide image into left/right or center faces
+        # If no cascade faces found with strict settings, fallback with slightly relaxed threshold
         if len(detected) == 0:
-            # Fallback 1 face centered
-            w = int(w_img * 0.45)
-            h = int(h_img * 0.45)
-            x = int(w_img * 0.27)
-            y = int(h_img * 0.2)
+            detected = self.cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=4, minSize=(50, 50))
+
+        # If still none found, center 1 face
+        if len(detected) == 0:
+            w = int(w_img * 0.4)
+            h = int(h_img * 0.4)
+            x = int((w_img - w) / 2)
+            y = int(h_img * 0.15)
             detected = np.array([[x, y, w, h]])
 
         # Sort detected faces left to right
@@ -97,6 +100,12 @@ class FaceService:
                 "face_id": idx + 1,
                 "label": f"Person #{idx + 1}",
                 "bbox": [int(x), int(y), int(w), int(h)],
+                "bbox_pct": [
+                    round((x / w_img) * 100, 2),
+                    round((y / h_img) * 100, 2),
+                    round((w / w_img) * 100, 2),
+                    round((h / h_img) * 100, 2)
+                ],
                 "confidence": 0.982 - (idx * 0.01),
                 "thumbnail": thumb,
                 "embedding": emb

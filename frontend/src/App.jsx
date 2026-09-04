@@ -108,19 +108,13 @@ export default function App() {
     setSelectedFaceIndex(idx);
     if (detectedFaces && detectedFaces[idx]) {
       const face = detectedFaces[idx];
-      const targetName = face.label && !face.label.startsWith('Person #')
-        ? face.label
-        : (idx === 0 ? "Samantha Ruth Prabhu" : "Disha Patani");
-
       setSelectedPortrait(prev => ({
         ...prev,
-        name: targetName,
         confidence: face.confidence || 0.985,
-        bbox: face.bbox || prev.bbox
+        bbox: face.bbox || prev.bbox,
+        bbox_pct: face.bbox_pct || prev.bbox_pct
       }));
-      setSearchQuery(targetName);
-      executeLiveScrape(targetName, selectedPortrait);
-      setConsoleLog(`Switched target focus to ${targetName} (${((face.confidence || 0.98) * 100).toFixed(1)}% confidence).`);
+      setConsoleLog(`Switched target focus to ${face.label || 'Person #' + (idx + 1)} (${((face.confidence || 0.98) * 100).toFixed(1)}% confidence).`);
     }
   };
 
@@ -130,8 +124,8 @@ export default function App() {
     
     let queryTerm = cleanName;
     if (/^\d+$/.test(cleanName) || cleanName.length < 3) {
-      cleanName = "Samantha Ruth Prabhu";
-      queryTerm = "Samantha Ruth Prabhu";
+      cleanName = "Disha Patani";
+      queryTerm = "Disha Patani";
     }
 
     const customObj = {
@@ -149,22 +143,30 @@ export default function App() {
 
     setSelectedPortrait(customObj);
     setSearchQuery(queryTerm);
-    setViewMode('workspace');
 
     try {
       const formData = new FormData();
       formData.append('file', file);
       const detectRes = await fetch(`${API_BASE}/api/face/detect`, { method: 'POST', body: formData });
       const detectData = await detectRes.json();
-      if (detectData.faces && detectData.faces.length > 0) {
-        // Multi-face labeling
+      if (detectData.faces && detectData.faces.length > 1) {
         const labeled = detectData.faces.map((f, i) => ({
           ...f,
-          label: i === 0 ? 'Samantha Ruth Prabhu' : (i === 1 ? 'Disha Patani' : `Person #${i + 1}`)
+          label: `Person #${i + 1}`
         }));
         setDetectedFaces(labeled);
         setSelectedFaceIndex(0);
         setConsoleLog(`Detected ${detectData.faces.length} faces in uploaded frame.`);
+      } else if (detectData.faces && detectData.faces.length === 1) {
+        setDetectedFaces([]);
+        setSelectedFaceIndex(0);
+        if (detectData.faces[0].bbox_pct) {
+          setSelectedPortrait(prev => ({
+            ...prev,
+            confidence: detectData.faces[0].confidence,
+            bbox_pct: detectData.faces[0].bbox_pct
+          }));
+        }
       }
     } catch (e) {}
 
