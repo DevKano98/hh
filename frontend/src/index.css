@@ -4,34 +4,44 @@
 
 @layer base {
   body {
-    @apply bg-canvas text-ink font-sans antialiased;
+    @apply bg-zinc-50 text-zinc-900 font-sans antialiased selection:bg-zinc-900 selection:text-white;
   }
 }
 
-.hero-headline {
-  font-family: 'Space Grotesk', sans-serif;
-  letter-spacing: -0.04em;
-  line-height: 0.96;
+.mono-tag {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  letter-spacing: 0.04em;
+  font-feature-settings: 'tnum';
+  font-variant-numeric: tabular-nums;
 }
 
-.mono-tag {
-  font-family: 'JetBrains Mono', monospace;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+/* Precision hairline border utility */
+.border-subtle {
+  @apply border border-zinc-200;
+}
+
+/* Sleek SaaS card styling */
+.saas-card {
+  @apply bg-white border border-zinc-200/90 rounded-xl shadow-card transition-all;
+}
+
+.saas-card-hover {
+  @apply hover:border-zinc-300 hover:shadow-card-hover transition-all duration-150;
 }
 
 /* Custom subtle scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d9d9dd;
-  border-radius: 4px;
+  background: #d4d4d8;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #75758a;
+  background: #a1a1aa;
 }
+

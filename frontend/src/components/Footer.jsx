@@ -1,54 +1,68 @@
 import React from 'react';
+import { ShieldCheck, Cpu, Database } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="bg-primary text-white py-16 border-t border-hairline">
+    <footer className="bg-zinc-950 text-zinc-400 py-16 border-t border-zinc-800/80 font-sans">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           
           {/* Brand & Mission */}
-          <div className="md:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-white text-ink rounded-md flex items-center justify-center font-mono font-bold text-xs">
+          <div className="md:col-span-2 space-y-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 bg-zinc-100 text-zinc-950 rounded-lg flex items-center justify-center font-mono font-bold text-xs shadow-sm">
                 TL
               </div>
-              <span className="text-xl font-display font-semibold">TraceLens</span>
+              <span className="text-base font-semibold text-zinc-100 tracking-tight">TraceLens</span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-mono font-medium border border-emerald-500/20">
+                v2.4 Enterprise
+              </span>
             </div>
-            <p className="text-xs text-muted leading-relaxed max-w-sm">
-              Enterprise AI visual media provenance system adhering to the Cohere 2026 enterprise design specification. Built with InsightFace, DuckDuckGo Search, Solidity, and Web3.
+            <p className="text-xs text-zinc-400 leading-relaxed max-w-sm">
+              Cryptographic visual provenance and deepfake biometric intelligence platform. Adheres to FIPS 180-4 SHA-256 standards, EVM immutable logs, and live zero-retention vector indexing.
             </p>
-            <div className="mt-4 text-[11px] mono-tag text-coral font-semibold">
-              FOR CONSENTED FORENSIC RESEARCH ONLY
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-[11px] font-mono text-zinc-300">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>NON-CUSTODIAL FORENSIC ENGINE</span>
             </div>
           </div>
 
-          {/* Architecture Links */}
+          {/* Architecture Specs */}
           <div>
-            <h5 className="text-xs mono-tag text-white mb-4">Architecture</h5>
-            <ul className="space-y-2.5 text-xs text-muted">
-              <li><a href="#ingestion-section" className="hover:text-white transition-colors">ArcFace Vector Embeddings</a></li>
-              <li><a href="#discovery-section" className="hover:text-white transition-colors">DuckDuckGo Public Indexing</a></li>
-              <li><a href="#blockchain-section" className="hover:text-white transition-colors">EvidenceRegistry.sol</a></li>
-              <li><a href="#tamper-section" className="hover:text-white transition-colors">Cryptographic Bit-Flipper</a></li>
+            <h5 className="text-[11px] font-mono uppercase tracking-wider text-zinc-200 font-semibold mb-4 flex items-center gap-1.5">
+              <Cpu className="w-3.5 h-3.5 text-zinc-400" />
+              Forensic Pipeline
+            </h5>
+            <ul className="space-y-2 text-xs text-zinc-400">
+              <li className="hover:text-zinc-200 transition-colors cursor-pointer">ArcFace 512-D Cosine Similarity</li>
+              <li className="hover:text-zinc-200 transition-colors cursor-pointer">Multi-Source Web Scraper</li>
+              <li className="hover:text-zinc-200 transition-colors cursor-pointer">ELA JPEG Quantization Scanner</li>
+              <li className="hover:text-zinc-200 transition-colors cursor-pointer">Qwen-3.8B Groq LLM Forensics</li>
             </ul>
           </div>
 
-          {/* Node Specifications */}
+          {/* Smart Contract Specifications */}
           <div>
-            <h5 className="text-xs mono-tag text-white mb-4">EVM Node</h5>
-            <ul className="space-y-2.5 text-xs text-muted font-mono">
-              <li>RPC: 127.0.0.1:8545</li>
-              <li>Solidity: ^0.8.19</li>
-              <li>Gas Strategy: Local Devnet</li>
-              <li>Hash: SHA-256 (FIPS 180-4)</li>
+            <h5 className="text-[11px] font-mono uppercase tracking-wider text-zinc-200 font-semibold mb-4 flex items-center gap-1.5">
+              <Database className="w-3.5 h-3.5 text-zinc-400" />
+              EVM Architecture
+            </h5>
+            <ul className="space-y-2 text-xs text-zinc-400 font-mono">
+              <li className="text-zinc-300">RPC: <span className="text-zinc-500">127.0.0.1:8545</span></li>
+              <li className="text-zinc-300">Contract: <span className="text-zinc-500">EvidenceRegistry.sol</span></li>
+              <li className="text-zinc-300">Hash: <span className="text-zinc-500">SHA-256 Canonical</span></li>
+              <li className="text-zinc-300">Storage: <span className="text-zinc-500">Zero-Persistence SQLite</span></li>
             </ul>
           </div>
         </div>
 
-        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center text-xs text-muted">
-          <p>© 2026 TraceLens. Local Forensic Research Prototype.</p>
-          <div className="flex gap-6 mt-4 sm:mt-0 font-mono">
-            <span>Zero Persistent Face Data</span>
+        <div className="pt-8 border-t border-zinc-900 flex flex-col sm:flex-row justify-between items-center text-xs text-zinc-500 gap-4">
+          <p>© 2026 TraceLens Inc. Non-Custodial Forensic Research Platform.</p>
+          <div className="flex items-center gap-6 font-mono text-[11px]">
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              All Systems Operational
+            </span>
             <span>Deterministic Provenance</span>
           </div>
         </div>
