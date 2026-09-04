@@ -11,13 +11,21 @@ class SearchProvider:
         raise NotImplementedError
 
 class LiveMultiSourceProvider(SearchProvider):
+    def _sanitize_title(self, raw_title: str, subject: str) -> str:
+        t = raw_title.replace("File:", "").replace(".jpg", "").replace(".jpeg", "").replace(".png", "").replace(".webp", "")
+        t = t.replace("_", " ").replace("-", " ")
+        t = re.sub(r'\(cropped\)', '', t, flags=re.IGNORECASE)
+        t = re.sub(r'\s+', ' ', t).strip()
+        if len(t) < 5 or t.isdigit():
+            return f"{subject} — Archival Media Capture"
+        return t
+
     def search(self, query: str = "human face portrait") -> list[SearchResult]:
         results = []
         
-        # 1. Intelligent Core Subject Extraction
-        cleaned = re.sub(r'\b(public|news|speech|photo|conference|live|official|archive)\b', '', query, flags=re.IGNORECASE)
+        # 1. Extract Clean Search Subject
+        cleaned = re.sub(r'\b(public|news|speech|photo|conference|live|official|archive|video|stream|press|interview)\b', '', query, flags=re.IGNORECASE)
         cleaned = re.sub(r'[^a-zA-Z0-9\s]', ' ', cleaned).strip()
-        
         words = cleaned.split()
         stop_words = {'in', 'at', 'on', 'with', 'and', 'for', 'the', 'of', 'a', 'an', 'to', 'is', 'by', 'from', 'but', 'her', 'his', 'best', 'outfits', 'makeup', 'lips', 'beauty', 'look', 'shares', 'clicks', 'dress', 'gown', 'birthday'}
         core_words = []
@@ -31,78 +39,114 @@ class LiveMultiSourceProvider(SearchProvider):
             core_subject = "Disha Patani"
 
         image_pool = []
+        subject_bio = f"Official media provenance profile for {core_subject}."
 
-        # 2. Query Wikipedia Official Article Gallery Generator (Guaranteed 100% Genuine Celebrity Photos)
+        # 2. Wikipedia OpenSearch Entity Resolution
+        resolved_title = core_subject
         try:
-            wiki_title = core_subject.strip().replace(' ', '_')
-            wiki_url = f"https://en.wikipedia.org/w/api.php?action=query&titles={urllib.parse.quote(wiki_title)}&generator=images&gimlimit=25&prop=imageinfo&iiprop=url&iiurlwidth=800&format=json"
+            opensearch_url = f"https://en.wikipedia.org/w/api.php?action=opensearch&search={urllib.parse.quote(core_subject)}&limit=1&namespace=0&format=json"
+            req = urllib.request.Request(opensearch_url, headers={'User-Agent': 'TraceLens/2.0 (provenance@tracelens.local)'})
+            os_data = json.loads(urllib.request.urlopen(req, timeout=4).read().decode('utf-8'))
+            if len(os_data) > 1 and os_data[1]:
+                resolved_title = os_data[1][0]
+        except Exception as e:
+            logging.error(f"OpenSearch resolution error: {e}")
+
+        # 3. Fetch Wikipedia Lead Portrait & Intro Biography
+        try:
+            lead_url = f"https://en.wikipedia.org/w/api.php?action=query&titles={urllib.parse.quote(resolved_title)}&prop=pageimages|extracts&exintro=1&explaintext=1&pithumbsize=1000&format=json"
+            req = urllib.request.Request(lead_url, headers={'User-Agent': 'TraceLens/2.0 (provenance@tracelens.local)'})
+            lead_data = json.loads(urllib.request.urlopen(req, timeout=5).read().decode('utf-8'))
+            pages = lead_data.get('query', {}).get('pages', {})
+            for pid, p in pages.items():
+                if 'thumbnail' in p and p['thumbnail'].get('source'):
+                    thumb_src = p['thumbnail']['source']
+                    bio = p.get('extract', '')
+                    if bio:
+                        sentences = bio.split('. ')
+                        subject_bio = '. '.join(sentences[:2]) + '.'
+                    
+                    image_pool.append({
+                        "url": thumb_src,
+                        "title": f"{resolved_title} — Canonical Verified Portrait (Lead Bio Record)",
+                        "source": "Wikipedia Verified Encyclopedia",
+                        "media_type": "image",
+                        "thumbnail_url": thumb_src,
+                        "article_text": subject_bio
+                    })
+        except Exception as e:
+            logging.error(f"Wikipedia lead portrait error: {e}")
+
+        # 4. Fetch Wikipedia Article Gallery Images
+        try:
+            wiki_url = f"https://en.wikipedia.org/w/api.php?action=query&titles={urllib.parse.quote(resolved_title)}&generator=images&gimlimit=30&prop=imageinfo&iiprop=url&iiurlwidth=800&format=json"
             req = urllib.request.Request(wiki_url, headers={'User-Agent': 'TraceLens/2.0 (provenance@tracelens.local)'})
             data = json.loads(urllib.request.urlopen(req, timeout=5).read().decode('utf-8'))
             pages = data.get('query', {}).get('pages', {})
             for pid, p in pages.items():
                 t = p.get('title', '')
-                if any(ext in t.lower() for ext in ['.jpg', '.jpeg', '.png', '.webp']) and not any(skip in t.lower() for skip in ['logo', 'icon', 'flag', 'edit', 'clapperboard', 'clef', 'protection', 'wiki', 'symbol']):
+                if any(ext in t.lower() for ext in ['.jpg', '.jpeg', '.png', '.webp']) and not any(skip in t.lower() for skip in ['logo', 'icon', 'flag', 'edit', 'clapperboard', 'clef', 'protection', 'wiki', 'symbol', 'signature', 'map']):
                     ii = p.get('imageinfo', [{}])[0]
                     thumb = ii.get('thumburl') or ii.get('url')
                     full = ii.get('url') or thumb
                     if thumb and not any(x['url'] == full for x in image_pool):
-                        clean_t = t.replace('File:', '').replace('_', ' ')
+                        clean_t = self._sanitize_title(t, resolved_title)
                         image_pool.append({
                             "url": full,
-                            "title": clean_t,
+                            "title": f"{clean_t} — Archival Image Record",
                             "source": "Wikipedia Official Gallery",
                             "media_type": "image",
                             "thumbnail_url": thumb,
-                            "article_text": f"Official public archival image record for {core_subject}."
+                            "article_text": f"Archival journalistic photo record for {resolved_title} indexed from verified public records."
                         })
         except Exception as e:
             logging.error(f"Wikipedia gallery error: {e}")
 
-        # 3. Query Wikimedia Commons Direct Search for high-res press wire photos
+        # 5. Fetch Wikimedia Commons Global Media Press Wire Search
         try:
-            commons_url = f"https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch={urllib.parse.quote(core_subject)}&gsrnamespace=6&prop=imageinfo&iiprop=url&iiurlwidth=800&format=json"
+            commons_url = f"https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch={urllib.parse.quote(resolved_title)}&gsrnamespace=6&prop=imageinfo&iiprop=url&iiurlwidth=800&format=json"
             req = urllib.request.Request(commons_url, headers={'User-Agent': 'TraceLens/2.0 (provenance@tracelens.local)'})
             res = json.loads(urllib.request.urlopen(req, timeout=5).read().decode('utf-8'))
             pages = res.get('query', {}).get('pages', {})
             
             for pid, page in pages.items():
                 t = page.get('title', '')
-                if any(ext in t.lower() for ext in ['.jpg', '.jpeg', '.png', '.webp']) and not any(skip in t.lower() for skip in ['logo', 'icon', 'flag', 'edit', 'clapperboard', 'clef', 'protection', 'wiki', 'symbol']):
+                if any(ext in t.lower() for ext in ['.jpg', '.jpeg', '.png', '.webp']) and not any(skip in t.lower() for skip in ['logo', 'icon', 'flag', 'edit', 'clapperboard', 'clef', 'protection', 'wiki', 'symbol', 'signature', 'map']):
                     img_info = page.get('imageinfo', [{}])[0]
                     thumb_url = img_info.get('thumburl') or img_info.get('url')
                     full_url = img_info.get('url') or thumb_url
                     if thumb_url and not any(x['url'] == full_url for x in image_pool):
-                        clean_t = t.replace('File:', '').replace('_', ' ')
+                        clean_t = self._sanitize_title(t, resolved_title)
                         image_pool.append({
                             "url": full_url,
-                            "title": clean_t,
-                            "source": "Wikimedia Commons / Global Index",
+                            "title": f"{clean_t} — Press Capture Wire",
+                            "source": "Wikimedia Commons / Global Wire",
                             "media_type": "image",
                             "thumbnail_url": thumb_url,
-                            "article_text": f"Public media archive record for {clean_t} indexed from open commons repositories."
+                            "article_text": f"Public press media archive record for {clean_t} indexed from global open commons repositories."
                         })
         except Exception as e:
             logging.error(f"Wikimedia Commons scrape error: {e}")
 
-        # Add image pool items to results first
+        # Add genuine image pool items
         results.extend(image_pool[:6])
 
-        # 4. Query Google News RSS for live journalistic news coverage
+        # 6. Query Google News RSS for Live Journalistic Press Wire Coverage
         try:
-            rss_url = f"https://news.google.com/rss/search?q={urllib.parse.quote(query)}&hl=en-US&gl=US&ceid=US:en"
+            rss_url = f"https://news.google.com/rss/search?q={urllib.parse.quote(resolved_title)}&hl=en-US&gl=US&ceid=US:en"
             req = urllib.request.Request(rss_url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
             xml_data = urllib.request.urlopen(req, timeout=5).read()
             root = ET.fromstring(xml_data)
             items = root.findall('.//item')
             
             for idx, item in enumerate(items[:6]):
-                title = item.find('title').text if item.find('title') is not None else f"{query} Press Wire"
+                title = item.find('title').text if item.find('title') is not None else f"{resolved_title} Press Report"
                 link = item.find('link').text if item.find('link') is not None else ""
                 pub = item.find('pubDate').text if item.find('pubDate') is not None else ""
                 desc = item.find('description').text if item.find('description') is not None else ""
-                clean_desc = re.sub('<[^<]+?>', '', desc) if desc else f"Recent public press report: {title}"
+                clean_desc = re.sub('<[^<]+?>', '', desc) if desc else f"Recent public press report regarding {resolved_title}."
                 
-                # Pair with an authentic scraped photo of the person
+                # Pair with authentic scraped photo of the person
                 thumb = image_pool[idx % len(image_pool)]["thumbnail_url"] if image_pool else "/assets/portrait_elena.jpg"
                 full_photo = image_pool[idx % len(image_pool)]["url"] if image_pool else "/assets/portrait_elena.jpg"
                 
@@ -112,14 +156,14 @@ class LiveMultiSourceProvider(SearchProvider):
                     "source": "Google News Live Wire",
                     "media_type": "news",
                     "thumbnail_url": thumb,
-                    "article_text": f"{clean_desc}. Published: {pub}"
+                    "article_text": f"{clean_desc}. Published on {pub}."
                 })
         except Exception as e:
             logging.error(f"News RSS scrape notice: {e}")
 
-        # 5. Fallback if offline
+        # 7. Fallback if offline
         if not results:
-            return DemoProvider().search(core_subject)
+            return DemoProvider().search(resolved_title)
 
         # Convert to SearchResult objects
         normalized = []

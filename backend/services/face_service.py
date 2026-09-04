@@ -52,10 +52,17 @@ class FaceService:
                         w, h = x2 - x, y2 - y
                         thumb = self._crop_thumbnail_base64(image, x, y, w, h)
                         emb = f.embedding.tolist() if hasattr(f.embedding, 'tolist') else list(f.embedding)
+                        bbox_pct = [
+                            round((x / w_img) * 100, 2),
+                            round((y / h_img) * 100, 2),
+                            round((w / w_img) * 100, 2),
+                            round((h / h_img) * 100, 2)
+                        ]
                         results.append({
                             "face_id": idx + 1,
                             "label": f"Person #{idx + 1}",
                             "bbox": [x, y, w, h],
+                            "bbox_pct": bbox_pct,
                             "confidence": float(getattr(f, 'det_score', 0.985)),
                             "thumbnail": thumb,
                             "embedding": emb
