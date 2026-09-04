@@ -15,18 +15,24 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Precision hairline border utility */
-.border-subtle {
-  @apply border border-zinc-200;
-}
+@layer components {
+  /* Precision hairline border utility */
+  .border-subtle {
+    @apply border border-zinc-200;
+  }
 
-/* Sleek SaaS card styling */
-.saas-card {
-  @apply bg-white border border-zinc-200/90 rounded-xl shadow-card transition-all;
-}
+  /* Sleek SaaS card styling */
+  .saas-card {
+    @apply bg-white border border-zinc-200/90 rounded-xl transition-all;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  }
 
-.saas-card-hover {
-  @apply hover:border-zinc-300 hover:shadow-card-hover transition-all duration-150;
+  .saas-card-hover {
+    @apply hover:border-zinc-300 transition-all duration-150;
+  }
+  .saas-card-hover:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.07);
+  }
 }
 
 /* Custom subtle scrollbar */
