@@ -170,11 +170,19 @@ export default function App() {
     setSelectedPortrait(customObj);
     setSearchQuery(queryTerm);
 
+    let finalSubjectName = cleanName;
     try {
       const formData = new FormData();
       formData.append('file', file);
       const detectRes = await fetch(`${API_BASE}/api/face/detect`, { method: 'POST', body: formData });
       const detectData = await detectRes.json();
+      
+      if (detectData.recognized_personality && detectData.recognized_personality !== 'Unknown Subject') {
+        finalSubjectName = detectData.recognized_personality;
+        setSelectedPortrait(prev => ({ ...prev, name: finalSubjectName }));
+        setSearchQuery(finalSubjectName);
+      }
+
       if (detectData.faces && detectData.faces.length > 1) {
         const labeled = detectData.faces.map((f, i) => ({
           ...f,
@@ -182,7 +190,7 @@ export default function App() {
         }));
         setDetectedFaces(labeled);
         setSelectedFaceIndex(0);
-        setConsoleLog(`Detected ${detectData.faces.length} faces in uploaded frame.`);
+        setConsoleLog(`Detected ${detectData.faces.length} faces in frame. Auto-identified: "${finalSubjectName}".`);
       } else if (detectData.faces && detectData.faces.length === 1) {
         setDetectedFaces([]);
         setSelectedFaceIndex(0);
@@ -196,7 +204,7 @@ export default function App() {
       }
     } catch (e) {}
 
-    executeLiveScrape(queryTerm, customObj);
+    executeLiveScrape(finalSubjectName, { ...customObj, name: finalSubjectName });
   };
 
   const handleStartAnalysis = () => {

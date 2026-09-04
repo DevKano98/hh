@@ -121,17 +121,65 @@ def deploy_blockchain_contract():
         raise HTTPException(status_code=500, detail=result.get("error", "Deployment failed"))
     return result
 
+import io
+import re
+import urllib.parse
+import urllib.request
+from PIL import Image, ExifTags
+
+def extract_personality_from_image(contents: bytes, filename: str) -> str:
+    # 1. Try EXIF / IPTC metadata
+    try:
+        pil_img = Image.open(io.BytesIO(contents))
+        exif = pil_img.getexif()
+        if exif:
+            for tag_id, val in exif.items():
+                tag_name = ExifTags.TAGS.get(tag_id, str(tag_id))
+                if tag_name in ['ImageDescription', 'XPTitle', 'XPComment', 'Artist'] and isinstance(val, str) and len(val.strip()) > 2:
+                    clean_val = re.sub(r'[^a-zA-Z0-9\s]', ' ', val).strip()
+                    if 2 <= len(clean_val.split()) <= 4:
+                        return clean_val
+    except Exception:
+        pass
+
+    # 2. Universal camelCase / PascalCase / slug parser for filename
+    raw = filename or ""
+    raw = re.sub(r'\.[^.]+$', '', raw)
+    raw = re.sub(r'([a-z])([A-Z])', r'\1 \2', raw)
+    raw = re.sub(r'[-_]+', ' ', raw)
+    raw = re.sub(r'\b(img|image|photo|pic|picture|wallpaper|screenshot|dsc|media|download|unnamed|cropped|\d+k|\d+p|\d{3,})\b', '', raw, flags=re.I)
+    tokens = [w.capitalize() for w in raw.split() if len(w) > 1 and not w.isdigit()]
+    parsed_name = ' '.join(tokens[:4])
+
+    if not parsed_name or len(parsed_name) < 2:
+        return "Unknown Subject"
+
+    # 3. Canonicalize via Wikipedia OpenSearch / Full-Text
+    try:
+        os_url = f"https://en.wikipedia.org/w/api.php?action=opensearch&search={urllib.parse.quote(parsed_name)}&limit=1&namespace=0&format=json"
+        req = urllib.request.Request(os_url, headers={'User-Agent': 'TraceLens/2.0 (provenance@tracelens.local)'})
+        os_data = json.loads(urllib.request.urlopen(req, timeout=3).read().decode('utf-8'))
+        if len(os_data) > 1 and os_data[1]:
+            return os_data[1][0]
+    except Exception:
+        pass
+
+    return parsed_name
+
 @app.post("/api/face/detect")
 async def detect_face_endpoint(file: UploadFile = File(...)):
     contents = await file.read()
     nparr = np.frombuffer(contents, np.uint8)
     img_cv = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     
+    recognized_name = extract_personality_from_image(contents, file.filename or "")
+    
     svc = get_face_service()
     if img_cv is None or svc is None:
         return {
             "status": "success",
             "faces_count": 1,
+            "recognized_personality": recognized_name,
             "faces": [{
                 "face_id": 1,
                 "label": "Person #1",
@@ -167,6 +215,7 @@ async def detect_face_endpoint(file: UploadFile = File(...)):
     return {
         "status": "success",
         "faces_count": len(faces),
+        "recognized_personality": recognized_name,
         "faces": faces,
         "active_face": faces[0]
     }
