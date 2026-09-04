@@ -118,15 +118,57 @@ export default function App() {
     }
   };
 
+  const cleanSubjectFromFilename = (rawFilename) => {
+    let name = rawFilename.replace(/\.[^/.]+$/, ''); // Remove extension
+    name = name.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim(); // Normalize separators
+
+    // Recognizable celebrities list
+    const knownCelebrities = [
+      "Lionel Messi", "Cristiano Ronaldo", "Samantha Ruth Prabhu", "Samantha",
+      "Disha Patani", "Shah Rukh Khan", "Deepika Padukone", "Alia Bhatt",
+      "Virat Kohli", "Narendra Modi", "Taylor Swift", "Elon Musk",
+      "Sam Altman", "Jensen Huang", "Sundar Pichai", "Satya Nadella",
+      "Dr Elena Rostova", "Marcus Vance"
+    ];
+
+    for (const celeb of knownCelebrities) {
+      const reg = new RegExp(`\\b${celeb}\\b`, 'i');
+      if (reg.test(name)) {
+        return celeb;
+      }
+    }
+
+    // Common metadata / agency / boilerplate fillers in media slug filenames
+    const fillerPatterns = [
+      /\b(barcelona|spain|madrid|london|new york|paris|mumbai|los angeles)\b/gi,
+      /\b(of fc barcelona|fc barcelona|real madrid|manchester united)\b/gi,
+      /\b(looks on during|in action during|attends the|poses at|speaks at|arrives at|celebrates)\b/gi,
+      /\b(the la liga|la liga santander|la liga|premier league|champions league|match|tournament)\b/gi,
+      /\b(gettyimages|getty images|shutterstock|reuters|afp|alamy|stock photo|photo by|editorial)\b/gi,
+      /\b(hd wallpaper|wallpaper|portrait|headshot|4k|1080p|image|photo|picture|screenshot)\b/gi,
+      /\b(2018|2019|2020|2021|2022|2023|2024|2025|2026)\b/g,
+      /\b\d{4,}\b/g
+    ];
+
+    let cleaned = name;
+    for (const pat of fillerPatterns) {
+      cleaned = cleaned.replace(pat, ' ');
+    }
+    cleaned = cleaned.replace(/\s+/g, ' ').trim();
+
+    if (!cleaned || cleaned.length < 3 || /^\d+$/.test(cleaned)) {
+      return "Target Subject";
+    }
+
+    // Title case the first 3 tokens
+    const words = cleaned.split(' ').slice(0, 3);
+    return words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+  };
+
   const handleCustomUpload = async (file) => {
     const previewUrl = URL.createObjectURL(file);
-    let cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' ').trim();
-    
-    let queryTerm = cleanName;
-    if (/^\d+$/.test(cleanName) || cleanName.length < 3) {
-      cleanName = "Disha Patani";
-      queryTerm = "Disha Patani";
-    }
+    const cleanName = cleanSubjectFromFilename(file.name);
+    const queryTerm = cleanName;
 
     const customObj = {
       id: `custom-${Date.now()}`,
@@ -440,7 +482,11 @@ export default function App() {
 
           {/* 4. Video Frame Scrubber (if video candidate or available) */}
           <div className="max-w-7xl mx-auto px-6">
-            <VideoTimelineScrubber candidate={selectedCandidate} />
+            <VideoTimelineScrubber 
+              candidate={selectedCandidate} 
+              candidates={candidates} 
+              selectedPortrait={selectedPortrait} 
+            />
           </div>
 
           {/* 5. Groq LLM Forensic Intelligence Report & Local Vector Database Store */}
